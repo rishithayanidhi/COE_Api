@@ -1,30 +1,60 @@
 version: "3.9"
 
 services:
+  # FastAPI Backend Service
   backend:
     build: .
-    container_name: fastapi_backend
+    container_name: coe_api_backend
     ports:
       - "8000:8000"
-    volumes:
-      - .:/app
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/mydatabase
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=blogpost_db
+      - DB_USER=postgres
+      - DB_PASSWORD=rishi1023
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+      - DEBUG=True
+      - LOG_LEVEL=INFO
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - coe_network
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
 
+  # PostgreSQL Database Service  
   db:
-    image: postgres:15
-    container_name: fastapi_db
-    restart: always
+    image: postgres:15-alpine
+    container_name: coe_api_database
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydatabase
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rishi1023
+      POSTGRES_DB: blogpost_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./app/db/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    networks:
+      - coe_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d blogpost_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+# Volumes
 volumes:
   postgres_data:
+    driver: local
+
+# Networks
+networks:
+  coe_network:
+    driver: bridge
