@@ -1,34 +1,61 @@
-# Python cache
+# ==========================
+# Python
+# ==========================
 __pycache__/
-*.py[cod]
+*.pyc
 *.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.manifest
+*.spec
 
+# Virtual environment
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# ==========================
 # Logs
+# ==========================
 *.log
 logs/
+!logs/.gitkeep  # keep folder but not logs
 
-# Virtual environments
-venv/
-env/
-.venv/
-
-# IDE/editor configs
+# ==========================
+# IDE / Editor
+# ==========================
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Environment variables
-.env
-*.env
-
-# Databases
-*.sqlite3
-*.db
-
-# Testing/coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# System files
+# ==========================
+# OS files
+# ==========================
 .DS_Store
 Thumbs.db
+
+# ==========================
+# Docker
+# ==========================
+*.pid
+*.seed
+*.bak
+
+# ==========================
+# Others
+# ==========================
+# Backup & temp
+*.tmp
+*.bak
+*.old
+
+# ==========================
+# Custom
+# ==========================
+# Ignore environment variables
+.env.example
