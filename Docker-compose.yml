@@ -1,4 +1,4 @@
-version: "3.9"
+# version: "3.9"
 
 services:
   # FastAPI Backend Service
@@ -40,7 +40,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./app/db/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
     networks:
       - coe_network
     healthcheck:
