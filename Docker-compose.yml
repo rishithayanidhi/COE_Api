@@ -1,5 +1,3 @@
-# version: "3.9"
-
 services:
   # FastAPI Backend Service
   backend:
@@ -48,6 +46,57 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # PostgreSQL Exporter
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: coe_postgres_exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:rishi1023@db:5432/blogpost_db?sslmode=disable"
+    ports:
+      - "9187:9187"
+    networks:
+      - coe_network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Prometheus Service
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: coe_prometheus
+    ports:
+      - "9091:9090"  # Host access
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - coe_network
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:9090/-/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Grafana Service
+  grafana:
+    image: grafana/grafana:latest
+    container_name: coe_grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - coe_network
+    restart: unless-stopped
+    depends_on:
+      prometheus:
+        condition: service_healthy
 
 # Volumes
 volumes:

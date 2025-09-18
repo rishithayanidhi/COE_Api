@@ -1,0 +1,253 @@
+{
+  "id": null,
+  "uid": "coe-monitoring-pro",
+  "title": "COE Full Monitoring Dashboard",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "style": "dark",
+  "tags": ["coe", "monitoring", "professional"],
+  "panels": [
+    {
+      "type": "row",
+      "title": "🚀 System Overview",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0}
+    },
+    {
+      "type": "gauge",
+      "title": "System CPU Usage %",
+      "targets": [
+        {
+          "expr": "100 - (avg by (instance) (rate(windows_cpu_time_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "CPU"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 70},
+              {"color": "red", "value": 85}
+            ]
+          }
+        }
+      },
+      "gridPos": {"x":0,"y":1,"w":6,"h":6}
+    },
+    {
+      "type": "gauge",
+      "title": "System Memory Usage %",
+      "targets": [
+        {
+          "expr": "(1 - (windows_memory_available_bytes / windows_memory_physical_total_bytes)) * 100",
+          "legendFormat": "Memory"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 60},
+              {"color": "red", "value": 80}
+            ]
+          }
+        }
+      },
+      "gridPos": {"x":6,"y":1,"w":6,"h":6}
+    },
+    {
+      "type": "gauge",
+      "title": "App CPU Usage %",
+      "targets": [{"expr": "process_cpu_usage_percent"}],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": 0},
+              {"color": "yellow", "value": 70},
+              {"color": "red", "value": 90}
+            ]
+          }
+        }
+      },
+      "gridPos": {"x":12,"y":1,"w":6,"h":6}
+    },
+    {
+      "type": "gauge",
+      "title": "App Memory Usage %",
+      "targets": [{"expr": "process_memory_usage_percent"}],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": 0},
+              {"color": "yellow", "value": 70},
+              {"color": "red", "value": 90}
+            ]
+          }
+        }
+      },
+      "gridPos": {"x":18,"y":1,"w":6,"h":6}
+    },
+    {
+      "type": "row",
+      "title": "📡 API Metrics",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 7}
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests Per Minute",
+      "targets": [
+        {"expr": "sum(rate(http_requests_total[1m])) * 60", "legendFormat": "RPM"}
+      ],
+      "gridPos": {"x":0,"y":8,"w":12,"h":6}
+    },
+    {
+      "type": "barchart",
+      "title": "Avg Response Time (s)",
+      "targets": [
+        {
+          "expr": "avg(rate(http_request_duration_seconds_sum[1m])) / avg(rate(http_request_duration_seconds_count[1m]))",
+          "legendFormat": "Avg Time"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "gridPos": {"x":12,"y":8,"w":12,"h":6}
+    },
+    {
+      "type": "timeseries",
+      "title": "Error Rate (4xx/5xx)",
+      "targets": [
+        {
+          "expr": "rate(http_requests_total{status=~\"4..|5..\"}[5m]) / rate(http_requests_total[5m]) or vector(0)",
+          "legendFormat": "Error Rate"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "orange", "value": 0.03},
+              {"color": "red", "value": 0.05}
+            ]
+          }
+        }
+      },
+      "gridPos": {"x":0,"y":14,"w":12,"h":6}
+    },
+    {
+      "type": "timeseries",
+      "title": "Backend Availability",
+      "targets": [
+        {
+          "expr": "up{job=\"coe_api\"}",
+          "legendFormat": "Up"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "red", "value": 0},
+              {"color": "green", "value": 1}
+            ]
+          }
+        }
+      },
+      "gridPos": {"x":12,"y":14,"w":12,"h":6}
+    },
+    {
+      "type": "piechart",
+      "title": "Status Code Distribution",
+      "targets": [
+        {"expr": "sum by (status)(http_requests_total)", "legendFormat": "{{status}}"}
+      ],
+      "gridPos": {"x":12,"y":20,"w":12,"h":6}
+    },
+    {
+      "type": "row",
+      "title": "🛢️ Database Metrics",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 26}
+    },
+    {
+      "type": "gauge",
+      "title": "Active DB Connections",
+      "targets": [{"expr": "db_active_connections"}],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 50,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": 0},
+              {"color": "yellow", "value": 10},
+              {"color": "red", "value": 20}
+            ]
+          }
+        }
+      },
+      "gridPos": {"x":0,"y":27,"w":6,"h":6}
+    },
+    {
+      "type": "stat",
+      "title": "Total DB Queries",
+      "targets": [{"expr": "sum(db_query_total)"}],
+      "gridPos": {"x":6,"y":27,"w":6,"h":6}
+    },
+    {
+      "type": "barchart",
+      "title": "DB Query Types",
+      "targets": [
+        {"expr": "sum by(query_type)(db_query_total)", "legendFormat": "{{query_type}}"}
+      ],
+      "gridPos": {"x":12,"y":27,"w":12,"h":6}
+    },
+    {
+      "type": "timeseries",
+      "title": "DB Query Performance (s)",
+      "targets": [
+        {
+          "expr": "avg by(query_type)(rate(db_query_duration_seconds_sum[1m])) / avg by(query_type)(rate(db_query_duration_seconds_count[1m]))",
+          "legendFormat": "{{query_type}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "gridPos": {"x":0,"y":33,"w":24,"h":6}
+    }
+  ],
+  "time": {"from": "now-30m", "to": "now"},
+  "timepicker": {
+    "refresh_intervals": ["5s","10s","30s","1m","5m","15m"],
+    "time_options": ["5m","15m","1h","6h","12h","24h","2d","7d"]
+  },
+  "templating": {"list":[]},
+  "annotations": {"list":[]}
+}

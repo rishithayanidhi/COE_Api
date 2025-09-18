@@ -1,0 +1,33 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
+
+scrape_configs:
+  # FastAPI backend metrics
+  - job_name: "coe_api"
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ["backend:8000"]
+
+  # Windows system metrics (windows_exporter)
+  - job_name: "windows_exporter"
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ["host.docker.internal:9182"]  # works if Prometheus is inside Docker
+
+  # PostgreSQL metrics (postgres_exporter)
+  - job_name: "postgres_db"
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ["postgres_exporter:9187"]

@@ -8,10 +8,15 @@ ENV PYTHONUNBUFFERED=1
 # Set work directory
 WORKDIR /app
 
-# Install system dependencies for psycopg2
-RUN apt-get update && apt-get install -y \
-    libpq-dev gcc curl \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies for psycopg2 with retry and alternative mirrors
+RUN apt-get update && \
+    (apt-get install -y libpq-dev gcc curl || \
+    (echo "Retrying with different DNS..." && \
+    echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
+    apt-get update && \
+    apt-get install -y libpq-dev gcc curl)) && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy and install Python dependencies
 COPY requirements.txt .
